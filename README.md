@@ -1,5 +1,4 @@
-AEBot = aAngry eEngineers Robot
-
+AEBot = Angry Engineers Robot
 =============
 
 This is where we will share our arduino sketches for the Angry Engineers competition.
