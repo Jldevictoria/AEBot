@@ -4,14 +4,15 @@
 //  -  a 1 sq. ft. target, and launch a missile to hit it.  -
 //  -   Made for angry engineers competition Feb 19, 2014   -
 //  ---------------------------------------------------------
-
+//int a = 0;
 
 void setup() {
+  //Serial.begin(9600);
   // This is where we set up the transmit type for each pin:
   // pinMode(0, INPUT/OUTPUT); //Digital Pin / Touch / RX1
   // pinMode(1, INPUT/OUTPUT); //Digital Pin / Touch / RX1
   // pinMode(2, INPUT/OUTPUT); //Digital Pin / CS
-  // pinMode(3, INPUT/OUTPUT); //Digital Pin / PWM
+  // pinMode(4, INPUT/OUTPUT); //Digital Pin / PWM
   // pinMode(4, INPUT/OUTPUT); //Digital Pin / PWM
   // pinMode(5, INPUT/OUTPUT); //Digital Pin / PWM
   // pinMode(6, INPUT/OUTPUT); //Digital Pin / PWM
@@ -29,7 +30,7 @@ void setup() {
   // pinMode(18/A4, INPUT/OUTPUT); //Digital Pin / Analog Pin (A4) / SDA0 / Touch
   // pinMode(19/A5, INPUT/OUTPUT); //Digital Pin / Analog Pin (A5) / SCL0 / Touch
   // pinMode(20/A6, INPUT/OUTPUT); //Digital Pin / Analog Pin (A6) / PWM
-  // pinMode(21/A7, INPUT/OUTPUT); //Digital Pin / Analog Pin (A7) / RX1 / PWN
+  // pinMode(22, INPUT); //Digital Pin / Analog Pin (A7) / RX1 / PWN
   // pinMode(22/A8, INPUT/OUTPUT); //Digital Pin / Analog Pin (A8) / Touch / PWM
   // pinMode(23/A9, INPUT/OUTPUT); //Digital Pin / Analog Pin (A9) / Touch / PWM
 }
@@ -48,4 +49,14 @@ void loop() {
   // calibrate this based on distance.  We then aim for a spot slightly  higher than 
   // we think we will need and fire a shot, followed by five servo adjustments down 
   // and five additional shots to try and hit the target. 
+  
+  //for (int i = 1; i < 50; i++){
+  //  digitalWrite(3, 1);
+  //  delay(5);
+  //  digitalWrite(3, 0);
+  //  delay(1000);
+  //}
+  //a = analogRead(22);
+  //Serial.println(a);
+  //delay(100);
 }
