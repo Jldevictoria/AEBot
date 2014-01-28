@@ -9,9 +9,9 @@
 #include <math.h>
 
 Servo horizontal;
-int _hServoPin = 14;
+int hServoPin = 14;
 Servo vertical;
-int _vServoPin = 15;
+int vServoPin = 15;
 int _pingPin = 16;
 
 long halfBaseEdgeInches = 5*12;
@@ -44,8 +44,8 @@ void setup() {
   // pinMode(22/A8, INPUT/OUTPUT); //Digital Pin / Analog Pin (A8) / Touch / PWM
   // pinMode(23/A9, INPUT/OUTPUT); //Digital Pin / Analog Pin (A9) / Touch / PWM
   
-  horizontal.attach(_hServoPin);
-  vertical.attach(_vServoPin);
+  //horizontal.attach(_hServoPin);
+  //vertical.attach(_vServoPin);
 }
 
 long GetSensorReading() {
@@ -121,8 +121,42 @@ void Scan() {
   
 }
 
+void manualControl(){
+  static int v = 0;
+
+  if ( Serial.available()) {
+    char ch = Serial.read();
+
+    switch(ch) {
+      case '0'...'9':
+        v = v * 10 + ch - '0';
+        break;
+      case 'q':
+        horizontal.write(v);
+        v = 0;
+        break;
+      case 'w':
+        vertical.write(v);
+        v = 0;
+        break;
+      case 's':
+        vertical.detach();
+        break;
+      case 'a':
+        vertical.attach(vServoPin);
+        break;
+      case 'x':
+        horizontal.detach();
+        break;
+      case 'z':
+        horizontal.attach(hServoPin);
+        break;
+    }
+  }
+}
+
 void loop() {
-  long duration, inches/*, cm*/;
+  /*long duration, inches;//, cm;
   duration = GetSensorReading();
   
   inches = microsecondsToInches(duration);
@@ -135,7 +169,7 @@ void loop() {
   else
   {
     Scan();
-  }  
+  }  */
   // Here we will put our main code, to run repeatedly: 
   // I think it is a good idea for us to put our ideas about implementation here.
   //
@@ -159,5 +193,7 @@ void loop() {
   //a = analogRead(22);
   //Serial.println(a);
   //delay(100);
+  
+  manualControl();
 }
 
