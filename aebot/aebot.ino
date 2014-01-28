@@ -5,6 +5,16 @@
 //  -   Made for angry engineers competition Feb 19, 2014   -
 //  ---------------------------------------------------------
 //int a = 0;
+#include <Servo.h>
+#include <math.h>
+
+Servo horizontal;
+int _hServoPin = 14;
+Servo vertical;
+int _vServoPin = 15;
+int _pingPin = 16;
+
+long halfBaseEdgeInches = 5*12;
 
 void setup() {
   //Serial.begin(9600);
@@ -33,9 +43,99 @@ void setup() {
   // pinMode(22, INPUT); //Digital Pin / Analog Pin (A7) / RX1 / PWN
   // pinMode(22/A8, INPUT/OUTPUT); //Digital Pin / Analog Pin (A8) / Touch / PWM
   // pinMode(23/A9, INPUT/OUTPUT); //Digital Pin / Analog Pin (A9) / Touch / PWM
+  
+  horizontal.attach(_hServoPin);
+  vertical.attach(_vServoPin);
+}
+
+long GetSensorReading() {
+  long duration;
+  pinMode(_pingPin, OUTPUT);
+  // The PING))) is triggered by a HIGH pulse of 2 or more microseconds.
+  // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
+  digitalWrite(_pingPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(_pingPin, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(_pingPin, LOW);
+  /* 
+  The same pin is used to read the signal from the PING))): a HIGH
+  pulse whose duration is the time (in microseconds) from the sending
+  of the ping to the reception of its echo off of an object.
+  */
+  pinMode(_pingPin, INPUT);
+  duration = pulseIn(_pingPin, HIGH);
+  return duration;
+}   
+  
+long microsecondsToInches(long microseconds) {
+  /*
+  According to Parallax's datasheet for the PING))), there are
+  73.746 microseconds per inch (i.e. sound travels at 1130 feet per
+  second).  This gives the distance travelled by the ping, outbound
+  and return, so we divide by 2 to get the distance of the obstacle.
+  See: http://www.parallax.com/dl/docs/prod/acc/28015-PING-v1.3.pdf
+  */
+  return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds) {
+  /* 
+  The speed of sound is 340 m/s or 29 microseconds per centimeter.
+  The ping travels out and back, so to find the distance of the
+  object we take half of the distance travelled.
+  */
+  return microseconds / 29 / 2;
+}
+
+boolean FoundTarget(long distance, int hAngle)
+{
+  //DOESNT WORK!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    int realAngle;
+    if (hAngle > 90)
+    {
+       realAngle = 180 - hAngle;
+    }
+    else
+    {
+       realAngle = hAngle; 
+    }
+    int testAngle = 90 -realAngle;
+    long edgeDistance = halfBaseEdgeInches/sin(testAngle);
+    if (distance < edgeDistance)
+    {
+       return true; 
+    }
+    else
+    {
+       return false; 
+    }
+    
+}
+
+void Fire() {
+ //Serial.println("Fire");
+}
+
+void Scan() {
+  
 }
 
 void loop() {
+  long duration, inches/*, cm*/;
+  duration = GetSensorReading();
+  
+  inches = microsecondsToInches(duration);
+  //cm = microsecondsToCentimeters(duration);
+  
+  if (FoundTarget(inches, horizontal.read()))
+  {
+    Fire();
+  }
+  else
+  {
+    Scan();
+  }  
   // Here we will put our main code, to run repeatedly: 
   // I think it is a good idea for us to put our ideas about implementation here.
   //
@@ -59,70 +159,5 @@ void loop() {
   //a = analogRead(22);
   //Serial.println(a);
   //delay(100);
-  
-  
-  /*
-  This should take care of the UltraSonic Sensor
-  uncomment the // for code
-  */
-      /*
-      establish variables for duration of the ping, 
-      and the distance result in inches and centimeters:
-      */
-  //long duration, inches, cm;
-
-  /* 
-  The PING))) is triggered by a HIGH pulse of 2 or more microseconds.
-  Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
-  */
-
-  /*
-  _pingPin is the pin on which the sensor is on
-  */
-
-  //pinMode(_pingPin, OUTPUT);
-  //digitalWrite(_pingPin, LOW);
-  //delayMicroseconds(2);
-  //digitalWrite(_pingPin, HIGH);
-  //delayMicroseconds(5);
-  //digitalWrite(_pingPin, LOW);
-
-  /* 
-  The same pin is used to read the signal from the PING))): a HIGH
-  pulse whose duration is the time (in microseconds) from the sending
-  of the ping to the reception of its echo off of an object.
-  */
-  
-  //pinMode(_pingPin, INPUT);
-  //duration = pulseIn(_pingPin, HIGH);
-  
-  /* 
-  convert the time into a distance
-  */
-  
-  //inches = microsecondsToInches(duration);
-  //cm = microsecondsToCentimeters(duration);
-
 }
 
-//long microsecondsToInches(long microseconds)
-//{
-  /*
-  According to Parallax's datasheet for the PING))), there are
-  73.746 microseconds per inch (i.e. sound travels at 1130 feet per
-  second).  This gives the distance travelled by the ping, outbound
-  and return, so we divide by 2 to get the distance of the obstacle.
-  See: http://www.parallax.com/dl/docs/prod/acc/28015-PING-v1.3.pdf
-  */
-  //return microseconds / 74 / 2;
-//}
-
-//long microsecondsToCentimeters(long microseconds)
-//{
-  /* 
-  The speed of sound is 340 m/s or 29 microseconds per centimeter.
-  The ping travels out and back, so to find the distance of the
-  object we take half of the distance travelled.
-  */
-  //return microseconds / 29 / 2;
-//}
