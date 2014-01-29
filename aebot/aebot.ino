@@ -121,7 +121,10 @@ void Scan() {
   
 }
 
-void manualControl(){
+void slowManualControl(){
+  // 5 IS OUR ZERO VERITCAL,  AND WE TOP OUT AT ABOUT 120
+  // 0 IS OUR HORIZONTAL RIGHT, 
+  
   static int v = 0;
 
   if ( Serial.available()) {
@@ -153,6 +156,66 @@ void manualControl(){
         break;
     }
   }
+}
+
+void fastManualControl(){
+   static char horz = 0;
+   static char vert = 0;
+   Serial.println("Choose Horizontal Value: (XXX)");
+   while (Serial.available() > 0) {
+     horz = Serial.read();
+     Serial.println("Horz: ");
+     Serial.println(horz);
+   }
+   
+   Serial.println("Choose Vertical Value: (YYY)");
+   while ( Serial.available() > 0) {
+     vert = Serial.read();
+     Serial.println("Vert: " + vert);
+   }
+   aim(horz,vert);
+   return;
+}
+
+void aim(int horz, int vert){
+  
+  delay(10);
+  horizontal.write(horz);
+  Serial.println(horz);
+  //horizontal.detach();
+  
+  delay(10);
+  vertical.write(vert);
+  Serial.println(vert);
+  //vertical.detach();
+  return;
+}
+
+void spanh(){
+  for (int i = 0; i < 180; i++){
+      aim(i,i);
+      delay(10);
+  }
+}
+
+void spanv(){
+  for (int i = 0; i < 100; i++){
+      aim(i,i);
+      delay(10);
+  }
+}
+
+void tester(){
+  horizontal.attach(hServoPin);
+  spanh();
+  horizontal.write(0);
+  delay(200);
+  horizontal.detach();
+  vertical.attach(vServoPin);
+  spanv();
+  vertical.write(0);
+  delay(300);
+  vertical.detach();
 }
 
 void loop() {
@@ -194,6 +257,9 @@ void loop() {
   //Serial.println(a);
   //delay(100);
   
-  manualControl();
+  //slowManualControl();
+  //fastManualControl();
+  //tester();
+  delay(1000);
 }
 
