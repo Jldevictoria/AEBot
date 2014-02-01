@@ -69,12 +69,12 @@ void loop() {
   
   //slowManualControl();
   //fastManualControl();
-  //tester();
+  //servoTester();
   //scan();
   //aim();
   //fire();
   //delay(1000);
-  //scanLoop();
+  //scanTester();
 }
 
 void scan() {
@@ -158,7 +158,7 @@ void fastManualControl(){
    return;
 }
 
-void tester(){
+void servoTester(){
   horizontal.attach(hServoPin);
   spanh();
   horizontal.detach();
@@ -191,7 +191,7 @@ void spanv(){
   delay(250);
 }
 
-void scanLoop(){
+void scanTester(){
   /* The following trigPin/echoPin cycle is used to determine the
    distance of the nearest object by bouncing soundwaves off of it. */ 
    int avtop, avfin = 0;
