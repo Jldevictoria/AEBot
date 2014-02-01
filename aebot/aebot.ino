@@ -4,30 +4,37 @@
 //  -  a 1 sq. ft. target, and launch a missile to hit it.  -
 //  -   Made for angry engineers competition Feb 19, 2014   -
 //  ---------------------------------------------------------
-//int a = 0;
+
 #include <Servo.h>
 #include <math.h>
 
 Servo horizontal;
-int hServoPin = 14;
 Servo vertical;
-int vServoPin = 15;
-int _pingPin = 16;
 
-long halfBaseEdgeInches = 5*12;
+// Pin Global Variables.
+int echoPin = 2;
+int trigPin = 4;
+int firePin = 8;
+int vServoPin = 17;
+int hServoPin = 19;
+
+// Scanning Variables.
+int maximumRange = 200; // Maximum range needed
+int minimumRange = 0; // Minimum range needed
+long duration, distance; // Duration used to calculate distance
 
 void setup() {
-  //Serial.begin(9600);
+  Serial.begin(9600);
   // This is where we set up the transmit type for each pin:
   // pinMode(0, INPUT/OUTPUT); //Digital Pin / Touch / RX1
   // pinMode(1, INPUT/OUTPUT); //Digital Pin / Touch / RX1
-  // pinMode(2, INPUT/OUTPUT); //Digital Pin / CS
-  // pinMode(4, INPUT/OUTPUT); //Digital Pin / PWM
-  // pinMode(4, INPUT/OUTPUT); //Digital Pin / PWM
+  pinMode(echoPin, INPUT); //Digital Pin / CS
+  // pinMode(3, INPUT/OUTPUT); //Digital Pin / PWM
+  pinMode(trigPin, OUTPUT); //Digital Pin / PWM
   // pinMode(5, INPUT/OUTPUT); //Digital Pin / PWM
   // pinMode(6, INPUT/OUTPUT); //Digital Pin / PWM
   // pinMode(7, INPUT/OUTPUT); //Digital Pin / DOUT / RX3
-  // pinMode(8, INPUT/OUTPUT); //Digital Pin / DIN / TX3
+  pinMode(firePin, OUTPUT); //Digital Pin / DIN / TX3
   // pinMode(9, INPUT/OUTPUT); //Digital Pin / PWM / RX2
   // pinMode(10, INPUT/OUTPUT); //Digital Pin / PWM / CS / TX2
   // pinMode(11, INPUT/OUTPUT); //Digital Pin / DOUT 
@@ -43,82 +50,56 @@ void setup() {
   // pinMode(22, INPUT); //Digital Pin / Analog Pin (A7) / RX1 / PWN
   // pinMode(22/A8, INPUT/OUTPUT); //Digital Pin / Analog Pin (A8) / Touch / PWM
   // pinMode(23/A9, INPUT/OUTPUT); //Digital Pin / Analog Pin (A9) / Touch / PWM
+}
+
+void loop() {
+  // Here we will put our main code, to run repeatedly: 
+  // I think it is a good idea for us to put our ideas about implementation here.
+  //
+  // Joseph - Jan 24, 2014:
+  // So basically my idea is represented by this simple state machine:
+  // (START) -> (SCAN) -> (TARGET) -> (AIM-H) -> (AIM-V) -> (FIRE) -> (ADJUST/FIREx5)
+  // We scan left and right until we find a strong reading on the ultrasonic sensor.
+  // Once we find it, we adjust our horizontal servo until we are aiming directly at
+  // the strongest return signal we sensed.  We adjust the vertical aim based on the 
+  // strength of the signal we get (to judge distace.) We will have to test and 
+  // calibrate this based on distance.  We then aim for a spot slightly  higher than 
+  // we think we will need and fire a shot, followed by five servo adjustments down 
+  // and five additional shots to try and hit the target. 
   
-  //horizontal.attach(_hServoPin);
-  //vertical.attach(_vServoPin);
+  //slowManualControl();
+  //fastManualControl();
+  //tester();
+  //scan();
+  //aim();
+  //fire();
+  //delay(1000);
+  //scanLoop();
 }
 
-long GetSensorReading() {
-  long duration;
-  pinMode(_pingPin, OUTPUT);
-  // The PING))) is triggered by a HIGH pulse of 2 or more microseconds.
-  // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
-  digitalWrite(_pingPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(_pingPin, HIGH);
-  delayMicroseconds(5);
-  digitalWrite(_pingPin, LOW);
-  /* 
-  The same pin is used to read the signal from the PING))): a HIGH
-  pulse whose duration is the time (in microseconds) from the sending
-  of the ping to the reception of its echo off of an object.
-  */
-  pinMode(_pingPin, INPUT);
-  duration = pulseIn(_pingPin, HIGH);
-  return duration;
-}   
+void scan() {
   
-long microsecondsToInches(long microseconds) {
-  /*
-  According to Parallax's datasheet for the PING))), there are
-  73.746 microseconds per inch (i.e. sound travels at 1130 feet per
-  second).  This gives the distance travelled by the ping, outbound
-  and return, so we divide by 2 to get the distance of the obstacle.
-  See: http://www.parallax.com/dl/docs/prod/acc/28015-PING-v1.3.pdf
-  */
-  return microseconds / 74 / 2;
 }
 
-long microsecondsToCentimeters(long microseconds) {
-  /* 
-  The speed of sound is 340 m/s or 29 microseconds per centimeter.
-  The ping travels out and back, so to find the distance of the
-  object we take half of the distance travelled.
-  */
-  return microseconds / 29 / 2;
+void aim(int horz, int vert){
+  
+  delay(10);
+  horizontal.write(horz);
+  Serial.println(horz);
+  //horizontal.detach();
+  
+  delay(10);
+  vertical.write(vert);
+  Serial.println(vert);
+  //vertical.detach();
+  return;
 }
 
-boolean FoundTarget(long distance, int hAngle)
-{
-  //DOESNT WORK!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    int realAngle;
-    if (hAngle > 90)
-    {
-       realAngle = 180 - hAngle;
-    }
-    else
-    {
-       realAngle = hAngle; 
-    }
-    int testAngle = 90 -realAngle;
-    long edgeDistance = halfBaseEdgeInches/sin(testAngle);
-    if (distance < edgeDistance)
-    {
-       return true; 
-    }
-    else
-    {
-       return false; 
-    }
-    
-}
-
-void Fire() {
+void fire() {
  //Serial.println("Fire");
-}
-
-void Scan() {
-  
+ digitalWrite(firePin, HIGH);
+ delay(1000);
+ digitalWrite(firePin, LOW);
 }
 
 void slowManualControl(){
@@ -177,89 +158,64 @@ void fastManualControl(){
    return;
 }
 
-void aim(int horz, int vert){
-  
-  delay(10);
-  horizontal.write(horz);
-  Serial.println(horz);
-  //horizontal.detach();
-  
-  delay(10);
-  vertical.write(vert);
-  Serial.println(vert);
-  //vertical.detach();
-  return;
-}
-
-void spanh(){
-  for (int i = 0; i < 180; i++){
-      aim(i,i);
-      delay(10);
-  }
-}
-
-void spanv(){
-  for (int i = 0; i < 100; i++){
-      aim(i,i);
-      delay(10);
-  }
-}
-
 void tester(){
   horizontal.attach(hServoPin);
   spanh();
-  horizontal.write(0);
-  delay(200);
   horizontal.detach();
   vertical.attach(vServoPin);
   spanv();
-  vertical.write(0);
-  delay(300);
   vertical.detach();
 }
 
-void loop() {
-  /*long duration, inches;//, cm;
-  duration = GetSensorReading();
-  
-  inches = microsecondsToInches(duration);
-  //cm = microsecondsToCentimeters(duration);
-  
-  if (FoundTarget(inches, horizontal.read()))
-  {
-    Fire();
+void spanh(){
+  horizontal.write(90);
+  delay(300);
+  for (int i = 90; i < 180; i=i+3){
+      aim(i,i);
+      delay(1);
   }
-  else
-  {
-    Scan();
-  }  */
-  // Here we will put our main code, to run repeatedly: 
-  // I think it is a good idea for us to put our ideas about implementation here.
-  //
-  // Joseph - Jan 24, 2014:
-  // So basically my idea is represented by this simple state machine:
-  // (START) -> (SCAN) -> (TARGET) -> (AIM-H) -> (AIM-V) -> (FIRE) -> (ADJUST/FIREx5)
-  // We scan left and right until we find a strong reading on the ultrasonic sensor.
-  // Once we find it, we adjust our horizontal servo until we are aiming directly at
-  // the strongest return signal we sensed.  We adjust the vertical aim based on the 
-  // strength of the signal we get (to judge distace.) We will have to test and 
-  // calibrate this based on distance.  We then aim for a spot slightly  higher than 
-  // we think we will need and fire a shot, followed by five servo adjustments down 
-  // and five additional shots to try and hit the target. 
-  
-  //for (int i = 1; i < 50; i++){
-  //  digitalWrite(3, 1);
-  //  delay(5);
-  //  digitalWrite(3, 0);
-  //  delay(1000);
-  //}
-  //a = analogRead(22);
-  //Serial.println(a);
-  //delay(100);
-  
-  //slowManualControl();
-  //fastManualControl();
-  //tester();
-  delay(1000);
+  for (int i = 90; i > 0; i=i-3){
+      aim(i,i);
+      delay(1);
+  }
+  horizontal.write(90);
+  delay(250);
 }
+
+void spanv(){
+  for (int i = 0; i < 110; i=i+3){
+      aim(i,i);
+      delay(1);
+  }
+  vertical.write(0);
+  delay(250);
+}
+
+void scanLoop(){
+  /* The following trigPin/echoPin cycle is used to determine the
+   distance of the nearest object by bouncing soundwaves off of it. */ 
+   int avtop, avfin = 0;
+   for (int i = 0; i < 500; i++){
+     digitalWrite(trigPin, LOW); 
+     delayMicroseconds(2); 
+
+     digitalWrite(trigPin, HIGH);
+     delayMicroseconds(10); 
+ 
+     digitalWrite(trigPin, LOW);
+     duration = pulseIn(echoPin, HIGH);
+     delay(2);
+     avtop += duration;
+   }
+   avfin = avtop/20;
+ 
+   //Calculate the distance (in cm) based on the speed of sound.
+   distance = avfin/58.2;
+ 
+   Serial.println(distance);
+}
+
+
+
+
 
